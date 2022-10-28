@@ -10,9 +10,6 @@ authors:
     orcid: 0000-0000-0000-0000
     equal-contrib: true
     affiliation: "1, 2" # (Multiple affiliations must be quoted)
-  - name: Author Without ORCID
-    equal-contrib: true # (This is how you can denote equal contributions between multiple authors)
-    affiliation: 2
   - name: Xuesong Zhou
     corresponding: true # 
     affiliation: 2
