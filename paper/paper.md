@@ -24,6 +24,10 @@ bibliography: paper.bib
 
 # Summary
 
+# State of the art
+
+# Statement of need
+
 # Acknowledgements
 
 # References
