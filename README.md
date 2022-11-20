@@ -1,8 +1,11 @@
 Working with GMNS Files in QGIS and NeXTA
 
-Prepared by Dr. Xuesong (Simon) Zhou’ research group at Arizona State University
+Prepared by Dr. Cafer Avcı, Researcher & Engineer, NEVS, National Electric Vehicle Sweden
+https://github.com/caferavci 
 
-Contact: xzhou74\@asu.edu
+Dr. Xuesong (Simon) Zhou’ research group at Arizona State University
+
+Contact: https://github.com/caferavci; xzhou74\@asu.edu
 
 Table of Contents
 
