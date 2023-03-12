@@ -158,7 +158,7 @@ vehicle.
 ![](media/9ba5dd5c4bbaf746de46f4385274073d.png)
 
 5) Export the vehicle trajectory to a text file, compute the average speed and
-and maximum acceleration for vehicle 1757 and 1767.
+and maximum acceleration for vehicles 1757 and 1767.
 
 ![](media/9ad665ef0fd741a97f0b777095d77509.png)
 
