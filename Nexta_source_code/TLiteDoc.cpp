@@ -338,10 +338,20 @@ vector<float> g_time_parser_in_min(string str)
 {
 	vector<float> output_global_minute, output_global_second;
 
-	output_global_second = g_time_parser(str);
-	for (int i = 0; i < output_global_second.size(); i++)
+
+	// detect the time format
+
+	if (str.find(':') != std::string::npos)
+	{ 
+		output_global_second = g_time_parser(str);
+		for (int i = 0; i < output_global_second.size(); i++)
+		{
+			output_global_minute.push_back(output_global_second[i]/60.0);
+		}
+	}
+	else
 	{
-		output_global_minute.push_back(output_global_second[i]/60.0);
+		g_ParserFloatSequence(str, output_global_minute);
 	}
 
 	return output_global_minute;
@@ -3802,6 +3812,7 @@ void CTLiteDoc::ReadPathFlowCSVFile_Parser(LPCTSTR lpszFileName)
 
 
 			pAgent->m_NodeSize = node_sequence.size();
+
 			time_sequence = g_time_parser_in_min(time_sequence_str);
 
 			std::string node_sequence_node_timestamp;
@@ -4812,14 +4823,14 @@ void CTLiteDoc::LoadSimulationOutput()
 
 	CCSVParser parser;
 
-	ReadSimulationLinkMOEData_Parser(m_ProjectDirectory + "static_link_performance.csv", true);
+	//ReadSimulationLinkMOEData_Parser(m_ProjectDirectory + "link_performance.csv", true);
 
-	bool b_link_MOE_data_flag = true; 
-	b_link_MOE_data_flag = ReadSimulationLinkMOEData_Parser(m_ProjectDirectory + "dynamic_link_performance.csv", false);
-	
+	//bool b_link_MOE_data_flag = true; 
+	//b_link_MOE_data_flag = ReadSimulationLinkMOEData_Parser(m_ProjectDirectory + "dynamic_link_performance.csv", false);
+	//
 
-	ReadTDLinkStateData_Parser(m_ProjectDirectory + "dynamic_link_state.csv");
-	ReadScenarioData_Parser(m_ProjectDirectory + "scenario.csv");
+	//ReadTDLinkStateData_Parser(m_ProjectDirectory + "dynamic_link_state.csv");
+
 
 	ReadPathFlowCSVFile_Parser(m_ProjectDirectory+ "route_assignment.csv");
 	ReadTrajectoryCSVFile_Parser(m_ProjectDirectory + "trajectory.csv");
