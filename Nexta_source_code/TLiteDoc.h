@@ -1204,191 +1204,218 @@ public:
 	}
 
 	
-	void SplitLinksForOverlappingNodeOnLinks(int ThisNodeID, bool bOffset = false, bool bLongLatFlag = false)
-	{
-		std::vector<DTALink*> OverlappingLinks;
+	//void SplitLinksForOverlappingNodeOnLinks(int ThisNodeID, bool bOffset = false, bool bLongLatFlag = false)
+	//{
+	//	std::vector<DTALink*> OverlappingLinks;
 
-		if(m_NodeIDMap[ThisNodeID]->m_Connections >=1)
-			return;
+	//	if(m_NodeIDMap[ThisNodeID]->m_Connections >=1)
+	//		return;
 
-		int ThisNodeNo = m_NodeIDMap[ThisNodeID]->m_NodeNo;
-		GDPoint p0 = m_NodeIDMap[ThisNodeID]->pt ;
+	//	int ThisNodeNo = m_NodeIDMap[ThisNodeID]->m_NodeNo;
+	//	GDPoint p0 = m_NodeIDMap[ThisNodeID]->pt ;
 
-		// step 1: find overlapping links
+	//	// step 1: find overlapping links
 
-		double threshold_in_pixels = 3;
+	//	double threshold_in_pixels = 3;
+	//	double min_selection_distrance = 99999;
 
-		for (std::list<DTALink*>::iterator iLink = m_LinkSet.begin(); iLink != m_LinkSet.end(); iLink++)
-	{
+	//	for (std::list<DTALink*>::iterator iLink = m_LinkSet.begin(); iLink != m_LinkSet.end(); iLink++)
+	//	{
 
-		for(int si = 0; si < (*iLink) ->m_ShapePoints .size()-1; si++)
-		{
+	//		for (int si = 0; si < (*iLink)->m_ShapePoints.size() - 1; si++)
+	//		{
 
-			GDPoint pfrom, pto;
-			pfrom = (*iLink)->m_ShapePoints[si];
-			pto =  (*iLink)->m_ShapePoints[si+1];
+	//			GDPoint pfrom, pto;
+	//			pfrom = (*iLink)->m_ShapePoints[si];
+	//			pto = (*iLink)->m_ShapePoints[si + 1];
 
-			float distance_network_coord = g_GetPoint2LineDistance(p0, pfrom, pto, m_UnitDistance,false);
+	//			float distance_network_coord = g_GetPoint2LineDistance(p0, pfrom, pto, m_UnitDistance, false);
 
-			float distance_in_screen_unit =  distance_network_coord*m_Doc_Resolution;
+	//			float distance_in_screen_unit = distance_network_coord * m_Doc_Resolution;
 
-			if(distance_in_screen_unit<= 10) 
-			{
-			OverlappingLinks.push_back((*iLink));
-			break;
-			}
+	//			if (distance_in_screen_unit <= 10 && distance_in_screen_unit < min_selection_distrance)
+	//			{
+	//				min_selection_distrance = distance_in_screen_unit;
+	//			}
 
-		}
-	}
+	//		}
+	//	}
 
-		//step 2: create new links
+	//	if (min_selection_distrance < 10)
+	//	{
 
-		for(int i = 0; i < OverlappingLinks.size(); i++)
-		{
+	//		for (std::list<DTALink*>::iterator iLink = m_LinkSet.begin(); iLink != m_LinkSet.end(); iLink++)
+	//		{
 
-		int ExistingFromNodeNo = OverlappingLinks[i]->m_FromNodeNo ;
-		int ExistingToNodeNo = OverlappingLinks[i]->m_ToNodeNo ;
+	//			for (int si = 0; si < (*iLink)->m_ShapePoints.size() - 1; si++)
+	//			{
 
+	//				GDPoint pfrom, pto;
+	//				pfrom = (*iLink)->m_ShapePoints[si];
+	//				pto = (*iLink)->m_ShapePoints[si + 1];
 
-		for(int add_link_index = 1; add_link_index <=2; add_link_index++)
-		{
-		int FromNodeNo, ToNodeNo;
-		
-		if(add_link_index==1)  // first link
-		{
-		FromNodeNo= ExistingFromNodeNo;
-		ToNodeNo = ThisNodeNo;
-		}
-		if(add_link_index==2) // second link
-		{
-		FromNodeNo= ThisNodeNo;
-		ToNodeNo = ExistingToNodeNo;
-		}
+	//				float distance_network_coord = g_GetPoint2LineDistance(p0, pfrom, pto, m_UnitDistance, false);
 
+	//				float distance_in_screen_unit = distance_network_coord * m_Doc_Resolution;
 
-		DTALink* pLink = 0;
+	//				if (distance_in_screen_unit <= min_selection_distrance)
+	//				{
+	//					OverlappingLinks.push_back(*iLink);
+	//				}
 
-		pLink = FindLinkWithNodeNo(FromNodeNo,ToNodeNo);
-
-		if(pLink != NULL)
-				continue;  // a link with the same from and to node numbers exists!
-
-		pLink = new DTALink(1);
-		pLink->m_LinkNo = (int)(m_LinkSet.size());
-		pLink->m_FromNodeID = m_NodeNoMap[FromNodeNo]->m_NodeID;
-		pLink->m_ToNodeID = m_NodeNoMap[ToNodeNo]->m_NodeID; 
-		pLink->m_FromNodeNo = FromNodeNo;
-		pLink->m_ToNodeNo= ToNodeNo;
-
-		if(m_NodeNoMap.find(FromNodeNo) == m_NodeNoMap.end())
-		{
-		
-		return;
-		}
-
-		if(m_NodeNoMap.find(ToNodeNo) == m_NodeNoMap.end())
-		{
-		
-		return;
-		}
-		pLink->m_FromPoint = m_NodeNoMap[pLink->m_FromNodeNo]->pt;
-		pLink->m_ToPoint = m_NodeNoMap[pLink->m_ToNodeNo]->pt;
-
-		m_NodeNoMap[FromNodeNo ]->m_Connections+=1;
-
-		m_NodeNoMap[FromNodeNo ]->m_OutgoingLinkVector.push_back(pLink->m_LinkNo);
+	//			}
+	//		}
+	//	}
 
 
+	//	//step 2: create new links
 
-		m_NodeNoMap[ToNodeNo ]->m_Connections+=1;
+	//	for(int i = 0; i < OverlappingLinks.size(); i++)
+	//	{
 
-		unsigned long LinkKey = GetLinkKey( pLink->m_FromNodeNo, pLink->m_ToNodeNo);
-		m_NodeIDtoLinkMap[LinkKey] = pLink;
-
-		__int64  LinkKey2 = GetLink64Key(pLink-> m_FromNodeID,pLink->m_ToNodeID);
-		m_NodeIDtoLinkMap[LinkKey2] = pLink;
-
-		pLink->m_NumberOfLanes= OverlappingLinks[i]->m_NumberOfLanes ;
-		pLink->m_FreeSpeed=  OverlappingLinks[i]->m_FreeSpeed ;
-		pLink->m_ReversedSpeedLimit =  OverlappingLinks[i]->m_FreeSpeed ;
-
-		double length;  
-
-		if(bLongLatFlag || m_LongLatFlag)  // bLongLatFlag is user input,  m_LongLatFlag is the system input from the project file 
-			length  = g_CalculateP2PDistanceInMeterFromLatitudeLongitude(pLink->m_FromPoint , pLink->m_ToPoint);
-		else 
-			length  = pLink->DefaultDistance()/max(0.0000001,m_UnitDistance);
-
-		pLink->m_Length = max(0.00001,length);  // alllow mimum link length
-		pLink->m_FreeFlowTravelTime = pLink->m_Length / pLink->m_FreeSpeed *60.0f;
-		pLink->m_StaticTravelTime = pLink->m_FreeFlowTravelTime;
-
-		pLink->m_MaximumServiceFlowRatePHPL= OverlappingLinks[i]->m_MaximumServiceFlowRatePHPL ;
-		pLink->m_LaneCapacity  = OverlappingLinks[i]->m_LaneCapacity;
-		pLink->m_link_type= OverlappingLinks[i]->m_link_type;
-
-		pLink->m_FromPoint = m_NodeNoMap[FromNodeNo]->pt;
-		pLink->m_ToPoint = m_NodeNoMap[ToNodeNo]->pt;
+	//	int ExistingFromNodeNo = OverlappingLinks[i]->m_FromNodeNo ;
+	//	int ExistingToNodeNo = OverlappingLinks[i]->m_ToNodeNo ;
 
 
-		if(bOffset)
-		{
-			double link_offset = m_UnitDistance*m_OffsetInDistance;
-			double DeltaX = pLink->m_ToPoint.x - pLink->m_FromPoint.x ;
-			double DeltaY = pLink->m_ToPoint.y - pLink->m_FromPoint.y ;
-			double theta = atan2(DeltaY, DeltaX);
-
-			pLink->m_FromPoint.x += link_offset* cos(theta-PI/2.0f);
-			pLink->m_ToPoint.x += link_offset* cos(theta-PI/2.0f);
-
-			pLink->m_FromPoint.y += link_offset* sin(theta-PI/2.0f);
-			pLink->m_ToPoint.y += link_offset* sin(theta-PI/2.0f);
-		}
-		pLink->m_ShapePoints.push_back(pLink->m_FromPoint);
-		pLink->m_ShapePoints.push_back(pLink->m_ToPoint);
-
-		pLink->CalculateShapePointRatios();
-
-		double lane_offset = m_UnitDistance*m_LaneWidthInMeter;  // 20 feet per lane
-
-		unsigned int last_shape_point_id = pLink ->m_ShapePoints .size() -1;
-		double DeltaX = pLink->m_ShapePoints[last_shape_point_id].x - pLink->m_ShapePoints[0].x;
-		double DeltaY = pLink->m_ShapePoints[last_shape_point_id].y - pLink->m_ShapePoints[0].y;
-		double theta = atan2(DeltaY, DeltaX);
-
-		for(unsigned int si = 0; si < pLink ->m_ShapePoints .size(); si++)
-		{
-			GDPoint pt;
-
-			pt.x = pLink->m_ShapePoints[si].x - lane_offset* cos(theta-PI/2.0f);
-			pt.y = pLink->m_ShapePoints[si].y - lane_offset* sin(theta-PI/2.0f);
-
-			pLink->m_BandLeftShapePoints.push_back (pt);
-
-			pt.x  = pLink->m_ShapePoints[si].x + max(1,pLink->m_NumberOfLanes - 1)*lane_offset* cos(theta-PI/2.0f);
-			pt.y = pLink->m_ShapePoints[si].y + max(1,pLink->m_NumberOfLanes - 1)*lane_offset* sin(theta-PI/2.0f);
-
-			pLink->m_BandRightShapePoints.push_back (pt);
-		}
+	//	for(int add_link_index = 1; add_link_index <=2; add_link_index++)
+	//	{
+	//	int FromNodeNo, ToNodeNo;
+	//	
+	//	if(add_link_index==1)  // first link
+	//	{
+	//	FromNodeNo= ExistingFromNodeNo;
+	//	ToNodeNo = ThisNodeNo;
+	//	}
+	//	if(add_link_index==2) // second link
+	//	{
+	//	FromNodeNo= ThisNodeNo;
+	//	ToNodeNo = ExistingToNodeNo;
+	//	}
 
 
-		m_LinkSet.push_back (pLink);
-		m_LinkNoMap[pLink->m_LinkNo]  = pLink;
+	//	DTALink* pLink = 0;
 
-		}
+	//	pLink = FindLinkWithNodeNo(FromNodeNo,ToNodeNo);
 
-		}
+	//	if(pLink != NULL)
+	//			continue;  // a link with the same from and to node numbers exists!
 
-	// step 3: delete overlapping links
-			
-		for(int i = 0; i < OverlappingLinks.size(); i++)
-		{
+	//	pLink = new DTALink(1);
+	//	pLink->m_LinkNo = (int)(m_LinkSet.size());
+	//	pLink->m_FromNodeID = m_NodeNoMap[FromNodeNo]->m_NodeID;
+	//	pLink->m_ToNodeID = m_NodeNoMap[ToNodeNo]->m_NodeID; 
+	//	pLink->m_FromNodeNo = FromNodeNo;
+	//	pLink->m_ToNodeNo= ToNodeNo;
 
-			DeleteLink(OverlappingLinks[i]);  // delete link according to this link's pointer
-		}
+	//	if(m_NodeNoMap.find(FromNodeNo) == m_NodeNoMap.end())
+	//	{
+	//	
+	//	return;
+	//	}
 
-	
-	}
+	//	if(m_NodeNoMap.find(ToNodeNo) == m_NodeNoMap.end())
+	//	{
+	//	
+	//	return;
+	//	}
+	//	pLink->m_FromPoint = m_NodeNoMap[pLink->m_FromNodeNo]->pt;
+	//	pLink->m_ToPoint = m_NodeNoMap[pLink->m_ToNodeNo]->pt;
+
+	//	m_NodeNoMap[FromNodeNo ]->m_Connections+=1;
+
+	//	m_NodeNoMap[FromNodeNo ]->m_OutgoingLinkVector.push_back(pLink->m_LinkNo);
+
+
+
+	//	m_NodeNoMap[ToNodeNo ]->m_Connections+=1;
+
+	//	unsigned long LinkKey = GetLinkKey( pLink->m_FromNodeNo, pLink->m_ToNodeNo);
+	//	m_NodeIDtoLinkMap[LinkKey] = pLink;
+
+	//	__int64  LinkKey2 = GetLink64Key(pLink-> m_FromNodeID,pLink->m_ToNodeID);
+	//	m_NodeIDtoLinkMap[LinkKey2] = pLink;
+
+	//	pLink->m_NumberOfLanes= OverlappingLinks[i]->m_NumberOfLanes ;
+	//	pLink->m_FreeSpeed=  OverlappingLinks[i]->m_FreeSpeed ;
+	//	pLink->m_ReversedSpeedLimit =  OverlappingLinks[i]->m_FreeSpeed ;
+
+	//	double length;  
+
+	//	if(bLongLatFlag || m_LongLatFlag)  // bLongLatFlag is user input,  m_LongLatFlag is the system input from the project file 
+	//		length  = g_CalculateP2PDistanceInMeterFromLatitudeLongitude(pLink->m_FromPoint , pLink->m_ToPoint);
+	//	else 
+	//		length  = pLink->DefaultDistance()/max(0.0000001,m_UnitDistance);
+
+	//	pLink->m_Length = max(0.00001,length);  // alllow mimum link length
+	//	pLink->m_FreeFlowTravelTime = pLink->m_Length / pLink->m_FreeSpeed *60.0f;
+	//	pLink->m_StaticTravelTime = pLink->m_FreeFlowTravelTime;
+
+	//	pLink->m_MaximumServiceFlowRatePHPL= OverlappingLinks[i]->m_MaximumServiceFlowRatePHPL ;
+	//	pLink->m_LaneCapacity  = OverlappingLinks[i]->m_LaneCapacity;
+	//	pLink->m_link_type= OverlappingLinks[i]->m_link_type;
+
+	//	pLink->m_FromPoint = m_NodeNoMap[FromNodeNo]->pt;
+	//	pLink->m_ToPoint = m_NodeNoMap[ToNodeNo]->pt;
+
+
+	//	if(bOffset)
+	//	{
+	//		double link_offset = m_UnitDistance*m_OffsetInDistance;
+	//		double DeltaX = pLink->m_ToPoint.x - pLink->m_FromPoint.x ;
+	//		double DeltaY = pLink->m_ToPoint.y - pLink->m_FromPoint.y ;
+	//		double theta = atan2(DeltaY, DeltaX);
+
+	//		pLink->m_FromPoint.x += link_offset* cos(theta-PI/2.0f);
+	//		pLink->m_ToPoint.x += link_offset* cos(theta-PI/2.0f);
+
+	//		pLink->m_FromPoint.y += link_offset* sin(theta-PI/2.0f);
+	//		pLink->m_ToPoint.y += link_offset* sin(theta-PI/2.0f);
+	//	}
+	//	pLink->m_ShapePoints.push_back(pLink->m_FromPoint);
+	//	pLink->m_ShapePoints.push_back(pLink->m_ToPoint);
+
+	//	pLink->CalculateShapePointRatios();
+
+	//	double lane_offset = m_UnitDistance*m_LaneWidthInMeter;  // 20 feet per lane
+
+	//	unsigned int last_shape_point_id = pLink ->m_ShapePoints .size() -1;
+	//	double DeltaX = pLink->m_ShapePoints[last_shape_point_id].x - pLink->m_ShapePoints[0].x;
+	//	double DeltaY = pLink->m_ShapePoints[last_shape_point_id].y - pLink->m_ShapePoints[0].y;
+	//	double theta = atan2(DeltaY, DeltaX);
+
+	//	for(unsigned int si = 0; si < pLink ->m_ShapePoints .size(); si++)
+	//	{
+	//		GDPoint pt;
+
+	//		pt.x = pLink->m_ShapePoints[si].x - lane_offset* cos(theta-PI/2.0f);
+	//		pt.y = pLink->m_ShapePoints[si].y - lane_offset* sin(theta-PI/2.0f);
+
+	//		pLink->m_BandLeftShapePoints.push_back (pt);
+
+	//		pt.x  = pLink->m_ShapePoints[si].x + max(1,pLink->m_NumberOfLanes - 1)*lane_offset* cos(theta-PI/2.0f);
+	//		pt.y = pLink->m_ShapePoints[si].y + max(1,pLink->m_NumberOfLanes - 1)*lane_offset* sin(theta-PI/2.0f);
+
+	//		pLink->m_BandRightShapePoints.push_back (pt);
+	//	}
+
+
+	//	m_LinkSet.push_back (pLink);
+	//	m_LinkNoMap[pLink->m_LinkNo]  = pLink;
+
+	//	}
+
+	//	}
+
+	//// step 3: delete overlapping links
+	//		
+	//	for(int i = 0; i < OverlappingLinks.size(); i++)
+	//	{
+
+	//		DeleteLink(OverlappingLinks[i]);  // delete link according to this link's pointer
+	//	}
+
+	//
+	//}
 	
 
 	DTANode* AddNewNode(GDPoint newpt, int NewNodeID=0 , int LayerNo =0, bool ActivityLocation = false, bool bSplitLink = false)
@@ -1423,10 +1450,10 @@ public:
 		m_NodeIDMap[pNode->m_NodeID] = pNode;
 		m_NodeIDtoNodeNoMap[pNode->m_NodeID] = pNode->m_NodeNo;
 
-		if(bSplitLink)
-		{
-		SplitLinksForOverlappingNodeOnLinks(pNode->m_NodeID,false,false);
-		}
+		//if(bSplitLink)
+		//{
+		//SplitLinksForOverlappingNodeOnLinks(pNode->m_NodeID,false,false);
+		//}
 		return pNode;
 	}
 

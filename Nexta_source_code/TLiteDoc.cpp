@@ -1346,9 +1346,9 @@ BOOL CTLiteDoc::OnOpenTrafficNetworkDocument(CString ProjectFileName, bool bNetw
 
 	if (ReadNodeCSVFile(directory + "node.csv",0,true) || m_BackgroundBitmapLoaded == true)
 	{
-		ReadNodeCSVFile(directory + "zone.csv",1,false);
+		//ReadZoneCSVFile(directory + "zone.csv",1,false);  // to be added: read zone.csv, 03/19, 2023
 		ReadLinkCSVFile(directory + "link.csv", false, 0, true);
-		ReadLinkCSVFile(directory + "access_link.csv", false, 1, false);
+		//ReadLinkCSVFile(directory + "access_link.csv", false, 1, false);
 
 		ReadSubareaCSVFile(directory + "subarea.csv");
 	}
