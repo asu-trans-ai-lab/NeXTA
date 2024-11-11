@@ -194,8 +194,8 @@ void CDlgPathList::ReloadData()
 
 		}
 
-			m_StrPathMOE.Format("Distance=%4.2f meter, Free-flow Travel Time=%4.2f min",
-				total_distance,total_travel_time);
+			m_StrPathMOE.Format("Distance=%4.2f meters (%4.4f miles), Free-flow Travel Time=%4.2f min",
+				total_distance, total_distance/1609.34, total_travel_time);
 	
 		
 		UpdateData(0);

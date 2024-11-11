@@ -1031,9 +1031,9 @@ bool CTLiteDoc::ReadSimulationLinkMOEData_Parser(LPCTSTR lpszFileName, bool bSta
 						float VOC = 0;
 
 						parser.GetValueByFieldName("travel_time", travel_time_in_min);
-						parser.GetValueByFieldName("volume", link_volume);
+						parser.GetValueByFieldName("vehicle_volume", link_volume);
 						parser.GetValueByFieldName("density", density);
-						parser.GetValueByFieldName("speed", speed);
+						parser.GetValueByFieldName("speed_mph", speed);
 						parser.GetValueByFieldName("queue", number_of_queued_agents);  // virtual queue
 						parser.GetValueByFieldName("VOC", VOC);  // virtual queue
 
@@ -2508,10 +2508,12 @@ bool CTLiteDoc::ReadLinkCSVFile(LPCTSTR lpszFileName, bool bCreateNewNodeFlag = 
 			int k = 1;
 
 			// to be fixed later. Zhou
-			parser.GetValueByFieldName("VDF_FFTT1", VDF_FFTT[k]);
-			parser.GetValueByFieldName("VDF_cap1", VDF_cap[k]);
-			parser.GetValueByFieldName("VDF_alpha1", VDF_alpha[k]);
-			parser.GetValueByFieldName("VDF_beta1", VDF_beta[k]);
+			parser.GetValueByFieldName("VDF_FFTT", VDF_FFTT[k]);
+			parser.GetValueByFieldName("VDF_alpha", VDF_alpha[k]);
+			parser.GetValueByFieldName("VDF_beta", VDF_beta[k]);
+			bool is_connector = 0;
+			parser.GetValueByFieldName("is_connector", is_connector);
+
 
 			string mvmt_txt_id;
 			string main_node_id;
@@ -2613,7 +2615,7 @@ bool CTLiteDoc::ReadLinkCSVFile(LPCTSTR lpszFileName, bool bCreateNewNodeFlag = 
 				pLink->macro_node_id = macro_node_id.c_str();
 				pLink->m_geo_string = geo_string;
 
-	
+				pLink->m_bConnector  = is_connector;
 
 				pLink->m_main_node_id = main_node_id;
 				pLink->m_mvmt_txt_id = mvmt_txt_id;
@@ -3680,9 +3682,9 @@ void CTLiteDoc::ReadPathFlowCSVFile_Parser(LPCTSTR lpszFileName)
 
 				string m_AgentID;
 
-					if (parser_test.GetValueByFieldName("path_no", m_AgentID) ==-1)
+					if (parser_test.GetValueByFieldName("route_seq_id", m_AgentID) ==-1)
 					{
-						AfxMessageBox("Field path_no does not exist in route_assignment.csv");
+						AfxMessageBox("Field route_seq_id does not exist in route_assignment.csv");
 						return;
 					}
 					if (parser_test.GetValueByFieldName("o_zone_id", pAgent->m_o_ZoneID)==-1)
@@ -3718,7 +3720,7 @@ void CTLiteDoc::ReadPathFlowCSVFile_Parser(LPCTSTR lpszFileName)
 
 
 			string m_AgentID;
-			parser.GetValueByFieldName("path_no", m_AgentID);
+			parser.GetValueByFieldName("route_seq_id", m_AgentID);
 
 			if(m_AgentID.size()==0)
 				break;
@@ -3766,7 +3768,7 @@ void CTLiteDoc::ReadPathFlowCSVFile_Parser(LPCTSTR lpszFileName)
 			parser.GetValueByFieldName("distance_km",pAgent->m_Distance  );
 
 			parser.GetValueByFieldName("volume", pAgent->m_Volume);
-			parser.GetValueByFieldName("agent_type",pAgent->m_AgentType );
+			parser.GetValueByFieldName("mode_type",pAgent->m_AgentType );
 			parser.GetValueByFieldName("demand_period", pAgent->m_demand_period);
 
 			if (m_demand_period_Map.find(pAgent->m_demand_period) == m_demand_period_Map.end())
@@ -3796,9 +3798,7 @@ void CTLiteDoc::ReadPathFlowCSVFile_Parser(LPCTSTR lpszFileName)
 
 			}
 
-			std::string activity_node_sequence_str;
-			parser.GetValueByFieldName("activity_node_sequence", activity_node_sequence_str);
-			  //physcial node sequence
+		  //physcial node sequence
 
 			std::string path_node_sequence, path_time_sequence, path_state_sequence;
 			parser.GetValueByFieldName("node_sequence",path_node_sequence );
@@ -3901,7 +3901,7 @@ void CTLiteDoc::ReadPathFlowCSVFile_Parser(LPCTSTR lpszFileName)
 
 	//	UpdateMovementDataFromAgentTrajector();
 
-		m_RouteAssignmentDataLoadingStatus.Format ("%d paths are loaded from file %s.", m_RouteAssignmentSet.size(),lpszFileName);
+		m_RouteAssignmentDataLoadingStatus.Format ("%d routes are loaded from file %s.", m_RouteAssignmentSet.size(),lpszFileName);
 
 	}
 }
@@ -4823,13 +4823,13 @@ void CTLiteDoc::LoadSimulationOutput()
 
 	CCSVParser parser;
 
-	//ReadSimulationLinkMOEData_Parser(m_ProjectDirectory + "link_performance.csv", true);
+	ReadSimulationLinkMOEData_Parser(m_ProjectDirectory + "link_performance.csv", true);
 
-	//bool b_link_MOE_data_flag = true; 
-	//b_link_MOE_data_flag = ReadSimulationLinkMOEData_Parser(m_ProjectDirectory + "dynamic_link_performance.csv", false);
+	bool b_link_MOE_data_flag = true; 
+	b_link_MOE_data_flag = ReadSimulationLinkMOEData_Parser(m_ProjectDirectory + "td_link_performance.csv", false);
 	//
 
-	//ReadTDLinkStateData_Parser(m_ProjectDirectory + "dynamic_link_state.csv");
+	ReadTDLinkStateData_Parser(m_ProjectDirectory + "td_link_state.csv");
 
 
 	ReadPathFlowCSVFile_Parser(m_ProjectDirectory+ "route_assignment.csv");
